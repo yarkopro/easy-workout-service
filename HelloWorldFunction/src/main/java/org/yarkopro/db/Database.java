@@ -20,26 +20,19 @@ public final class Database {
 
     private static HikariDataSource dataSource;
 
-    static {
-        try {
-            final Configuration configuration = ConfigurationHolder.INSTANCE.configuration();
-            final Configuration.DataSource props = configuration.getDatasource();
-
-            final HikariConfig config = new HikariConfig();
-            config.setDriverClassName(props.getDriverClassName());
-            config.setJdbcUrl(props.getUrl());
-            config.setUsername(props.getUsername());
-            config.setPassword(props.getPassword());
-
-            dataSource = new HikariDataSource(config);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            dataSource = new HikariDataSource();
-        }
-
-    }
-
     public static Connection connection() throws SQLException {
+        final Configuration configuration = ConfigurationHolder.INSTANCE.configuration();
+        final Configuration.DataSource props = configuration.getDatasource();
+
+        final HikariConfig config = new HikariConfig();
+        config.setDriverClassName(props.getDriverClassName());
+        System.out.println(props.getUrl());
+        config.setJdbcUrl(props.getUrl());
+        config.setUsername(props.getUsername());
+        config.setPassword(props.getPassword());
+
+        dataSource = new HikariDataSource(config);
+
         return dataSource.getConnection();
     }
 }

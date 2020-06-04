@@ -4,3 +4,4 @@
 *.jar
 /.aws-sam
 /.idea
+.env.json
