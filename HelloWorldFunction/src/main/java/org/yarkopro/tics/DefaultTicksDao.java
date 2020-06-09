@@ -1,7 +1,6 @@
-package org.yarkopro.dao;
+package org.yarkopro.tics;
 
 import org.yarkopro.db.Database;
-import org.yarkopro.pojo.Tick;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,9 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Default employee DAO implementation.
- */
 public enum DefaultTicksDao implements TicksDao {
     INSTANCE;
 
@@ -30,8 +26,7 @@ public enum DefaultTicksDao implements TicksDao {
                         rs.getInt("id"),
                         rs.getInt("entity_id"),
                         rs.getString("latitude"),
-                        rs.getString("longitude"),
-                        rs.getShort("tick_type"));
+                        rs.getString("longitude"), TickType.FACILITY);
 
                 ticks.add(tick);
             }

@@ -1,4 +1,4 @@
-package org.yarkopro.pojo;
+package org.yarkopro.tics;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -14,5 +14,5 @@ public class Tick {
     Integer entityId;
     String latitude;
     String longitude;
-    Short type;
+    TickType type;
 }

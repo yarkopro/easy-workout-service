@@ -26,6 +26,9 @@ Resources:
       MemorySize: 512
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
+          DB_URL: jdbc:mysql://ew-db.cluster-clpbj5dgz9s3.us-east-1.rds.amazonaws.com:3306
+          DB_USER_NAME: admin,
+          DB_PASSWORD: EW-polytechnic-2020
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api

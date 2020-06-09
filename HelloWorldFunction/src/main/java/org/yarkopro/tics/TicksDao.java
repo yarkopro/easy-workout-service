@@ -1,7 +1,5 @@
-package org.yarkopro.dao;
+package org.yarkopro.tics;
 
-
-import org.yarkopro.pojo.Tick;
 
 import java.util.List;
 
