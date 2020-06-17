@@ -3,34 +3,53 @@ package org.yarkopro;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
-import com.amazonaws.services.lambda.runtime.events.SQSEvent;
+import com.amazonaws.services.lambda.runtime.events.*;
 import com.google.gson.Gson;
+import org.yarkopro.activities.FacilityController;
 import org.yarkopro.tics.DefaultTicksDao;
 import org.yarkopro.tics.Tick;
 import org.yarkopro.tics.TicksDao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Handler for requests to Lambda function.
  */
-public class App implements RequestHandler<APIGatewayV2HTTPEvent, Object> {
+public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final TicksDao ticksDao = DefaultTicksDao.INSTANCE;
 
-    public Object handleRequest(final APIGatewayV2HTTPEvent input, final Context context) {
+    public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent request, final Context context) {
         LambdaLogger logger = context.getLogger();
-        logger.log(input.getRouteKey());
+        APIGatewayProxyResponseEvent response =  new APIGatewayProxyResponseEvent();
         try {
-            logger.log(input.toString());
             List<Tick> ticks = ticksDao.findAll();
-//            String output = new Gson().toJson(ticksDao.findAll());
-            return ticks;
+
+            logger.log(request.toString());
+            this.getControllerResponse(request, context);
+            response.setBody(new Gson().toJson(ticks));
+            return response;
         } catch (Exception e) {
+            String errorMsg = "{\"error\":\"" + e.getMessage() + "\"}";
+            response.setBody(errorMsg);
+            if (e.getMessage().startsWith("Communications link failure")) {
+                response.setStatusCode(504);
+                return response;
+            }
             logger.log(e.getMessage());
             e.printStackTrace();
-            return "{\"error\":\""+e.getMessage()+"\"}";
+            return response;
         }
+    }
+
+    private Object getControllerResponse(APIGatewayProxyRequestEvent request, Context context) {
+        String path = request.getPath();
+        String resourceName = path.split("/")[0];
+        context.getLogger().log("\n\n"+path+"\n\n");
+        if (ResourceType.FACILITY.getResourceUrlName().equals(resourceName)) {
+            return FacilityController.INSTANCE.getResult(request, context);
+        }
+        return null;
     }
 }
