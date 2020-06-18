@@ -1,10 +1,11 @@
 package org.yarkopro;
 
-import org.yarkopro.activities.FacilityController;
+import org.yarkopro.activities.ActivityController;
+import org.yarkopro.facilities.FacilityController;
 
 public enum ResourceType {
 	FACILITY("facilities", FacilityController.INSTANCE),
-	ACTIVITY("activities", null),
+	STANDALONE_ACTIVITY("standalone-activities", ActivityController.INSTANCE),
 	TICK("ticks", null);
 
 	private final String resourceUrlName;
