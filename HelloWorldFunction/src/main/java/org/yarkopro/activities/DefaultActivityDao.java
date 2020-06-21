@@ -19,7 +19,7 @@ public enum DefaultActivityDao implements ActivityDao {
 
         try (Connection conn = Database.connection();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT * FROM facility_activity join activity on activity.id=facility_activity.activity_id where facility_id="+id)) {
+                     "SELECT * FROM facility_activities join activities on activities.id=facility_activities.activity_id where facility_id="+id)) {
 
             ResultSet rs = ps.executeQuery();
 
@@ -44,14 +44,22 @@ public enum DefaultActivityDao implements ActivityDao {
 
         try (Connection conn = Database.connection();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT * FROM standalone_activity join activity on activity.id=standalone_activity.activity_id where activity_id="+id)) {
+                     "SELECT * FROM standalone_activities join activities on activities.id=standalone_activities.activity_id where activity_id="+id)) {
 
             ResultSet rs = ps.executeQuery();
-            Coords coords = Coords.of(rs.getString("latitude"), rs.getString("longitude"));
+            if (rs.next()) {
+                Coords coords = Coords.of(rs.getString("latitude"), rs.getString("longitude"));
                 activity = new StandaloneActivity(
-                        rs.getInt("id"),
-                        coords,
-                        rs.getString("description"));
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("decription"),
+                    rs.getTimestamp("time"),
+                    null,
+                    rs.getBoolean("deleted"),
+                    rs.getBoolean("hidden"),
+                    coords
+                );
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();

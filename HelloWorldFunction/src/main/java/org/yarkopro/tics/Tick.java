@@ -2,16 +2,12 @@ package org.yarkopro.tics;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.yarkopro.coords.Coords;
 
-/**
- * Employee class/pojo.
- */
 @Value
 @AllArgsConstructor(staticName = "of")
 public class Tick {
-
     Integer entityId;
-    String latitude;
-    String longitude;
+    Coords coords;
     Integer type;
 }

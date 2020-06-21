@@ -1,5 +1,6 @@
 package org.yarkopro.tics;
 
+import org.yarkopro.coords.Coords;
 import org.yarkopro.db.Database;
 
 import java.sql.Connection;
@@ -22,12 +23,12 @@ public enum DefaultTicksDao implements TicksDao {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
+                Coords coords = Coords.of(rs.getString("latitude"),
+                    rs.getString("longitude"));
                 Tick tick = Tick.of(
-                    rs.getInt("entity_id"),
-                    rs.getString("latitude"),
-                    rs.getString("longitude"),
-                    rs.getInt("tick_type"));
-
+                        rs.getInt("entity_id"),
+                        coords,
+                        rs.getInt("tick_type"));
                 ticks.add(tick);
             }
         } catch (SQLException e) {

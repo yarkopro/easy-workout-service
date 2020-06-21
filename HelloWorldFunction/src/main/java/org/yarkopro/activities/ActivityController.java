@@ -22,8 +22,9 @@ public enum ActivityController implements Controller {
 												  APIGatewayProxyResponseEvent response,
 												  Context context) {
 		Map<String, String> params = event.getQueryStringParameters();
-		String id = params.get("id");
-		if (id != null) {
+
+		if (params != null && params.get("id") != null) {
+			String id = params.get("id");
 			response.setBody(new Gson().toJson(dao.findStandaloneActivityById(Integer.valueOf(id))));
 		} else {
 			response.setStatusCode(400);

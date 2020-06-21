@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum FacilityType {
-    GYM,
     PLAYGROUND,
     TRACK,
-    BAR,
-    FIELD;
+    GYM,
+    FIELD,
+    OUTLET;
 
     public static FacilityType getByValue(final String value) {
         return Arrays.stream(values()).filter(v -> v.toString().equals(value)).findFirst().orElseThrow(Error::new);

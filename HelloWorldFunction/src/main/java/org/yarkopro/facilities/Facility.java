@@ -17,7 +17,7 @@ public class Facility {
     @NonNull
     Integer id;
     @NonNull
-    FacilityType type;
+    Integer type;
     @NonNull
     String name;
     @NonNull

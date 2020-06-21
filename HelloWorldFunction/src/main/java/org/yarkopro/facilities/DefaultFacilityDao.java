@@ -25,14 +25,7 @@ public enum DefaultFacilityDao implements FacilityDao {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Coords coords = Coords.of(rs.getString("latitude"), rs.getString("longitude"));
-                Facility facility = Facility.of(
-                        rs.getInt("id"),
-                        FacilityType.getByValue(rs.getString("type")),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        coords
-                        );
+                Facility facility = getFacility(rs);
 
                 facilities.add(facility);
             }
@@ -42,32 +35,38 @@ public enum DefaultFacilityDao implements FacilityDao {
         return facilities;
     }
 
+    private Facility getFacility(ResultSet rs) throws SQLException {
+        Coords coords = Coords.of(rs.getString("latitude"), rs.getString("longitude"));
+        return Facility.of(
+                rs.getInt("id"),
+                rs.getInt("type"),
+                rs.getString("name"),
+                rs.getString("description"),
+                coords
+                );
+    }
+
     @Override
     public Facility findOne(Integer id) {
         Facility facility = new Facility();
 
         try (Connection conn = Database.connection();
-             PreparedStatement ps = conn.prepareStatement("SELECT * FROM facility where id=" + id)) {
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM facilities where id=" + id)) {
 
             ResultSet rs = ps.executeQuery();
 
-                Coords coords = Coords.of(rs.getString("latitude"), rs.getString("longitude"));
-                facility = Facility.of(
-                        rs.getInt("id"),
-                        FacilityType.getByValue(rs.getString("type")),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        coords
-                );
+            if (rs.next()) {
+                facility = getFacility(rs);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         try (Connection conn = Database.connection();
-             PreparedStatement ps = conn.prepareStatement("SELECT * FROM facility_activity " +
-                             "join activity on activity.id=facility_activity.activity_id " +
-                            "where facility_activity.facility_id=" + id)) {
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM facility_activities " +
+                             "join activities on activities.id=facility_activities.activity_id " +
+                            "where facility_activities.facility_id=" + id)) {
             List<FacilityActivity> facilityActivities = new ArrayList<>();
             ResultSet rs = ps.executeQuery();
 
@@ -81,10 +80,21 @@ public enum DefaultFacilityDao implements FacilityDao {
                 facilityActivities.add(activity);
             }
 
-            facility.activities.addAll(facilityActivities);
+            facility.activities = facilityActivities;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return facility;
+    }
+
+    List<Facility> findNearest(String latitude, String longitude, double distance) {
+        double lon = Math.toRadians(Double.parseDouble(longitude));
+        double lat = Math.toRadians(Double.parseDouble(latitude));
+        final int EARTH_RADIUS = 6371000;
+        String query = "SELECT * FROM facilities " +
+            "WHERE acos(sin("+lat+") * sin(facilities.latitude) + cos("+lat+") * cos(facilities.latitude) * " +
+            "cos(facilities.longitude - ("+lon+ "))) * " + EARTH_RADIUS + " <= " + distance + ";";
+
+        return null;
     }
 }

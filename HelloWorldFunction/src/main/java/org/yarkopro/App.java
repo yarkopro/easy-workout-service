@@ -3,41 +3,36 @@ package org.yarkopro;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.*;
-import com.google.gson.Gson;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import org.yarkopro.activities.ActivityController;
 import org.yarkopro.facilities.FacilityController;
-import org.yarkopro.tics.DefaultTicksDao;
-import org.yarkopro.tics.Tick;
 import org.yarkopro.tics.TickController;
-import org.yarkopro.tics.TicksDao;
 
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Handler for requests to Lambda function.
  */
 public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-	private final TicksDao ticksDao = DefaultTicksDao.INSTANCE;
-
-	public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent request, final Context context) {
+	public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent event, final Context context) {
 		LambdaLogger logger = context.getLogger();
 		APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+		response.setHeaders(getHeaders());
 		try {
-			List<Tick> ticks = ticksDao.findAll();
-
-			logger.log(request.toString());
-			this.getControllerResponse(request, response, context);
-			response.setBody(new Gson().toJson(ticks));
-			return response;
+			logger.log(event.toString());
+			return this.getControllerResponse(event, response, context);
 		} catch (Exception e) {
 			String errorMsg = "{\"error\":\"" + e.getMessage() + "\"}";
 			response.setBody(errorMsg);
-			if (e.getMessage().startsWith("Communications link failure")) {
+			if (e.getMessage() != null && e.getMessage().startsWith("Communications link failure")) {
 				response.setStatusCode(504);
 				return response;
 			}
+			response.setStatusCode(500);
 			logger.log(e.getMessage());
 			e.printStackTrace();
 			return response;
@@ -50,7 +45,10 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
 		String path = request.getPath();
 		String resourceName = path.split("/")[1];
 
+		Map<String, String> params = request.getQueryStringParameters();
 		context.getLogger().log("\n\n" + resourceName + "\n\n");
+		context.getLogger().log("[QUERY PARAMS]" + params);
+
 		if (ResourceType.FACILITY.getResourceUrlName().equals(resourceName)) {
 			return FacilityController.INSTANCE.getResult(request, response, context);
 		} else if (ResourceType.STANDALONE_ACTIVITY.getResourceUrlName().equals(resourceName)) {
@@ -59,5 +57,15 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
 			return TickController.INSTANCE.getResult(request, response, context);
 		}
 		return response;
+	}
+
+	private Map<String, String> getHeaders() {
+		Map<String, String> headers = Stream.of(new String[][] {
+			{ "X-Requested-With", "*" },
+			{ "Access-Control-Allow-Headers", "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with" },
+			{ "Access-Control-Allow-Origin", "*" },
+			{ "Access-Control-Allow-Methods", "POST,GET,OPTIONS" },
+		}).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+		return headers;
 	}
 }

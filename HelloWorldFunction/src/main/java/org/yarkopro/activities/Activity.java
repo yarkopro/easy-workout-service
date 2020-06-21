@@ -2,14 +2,18 @@ package org.yarkopro.activities;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.yarkopro.user.User;
 
 import java.sql.Timestamp;
 
 @NoArgsConstructor
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor()
 public class Activity {
     Integer id;
     String name;
     String description;
-    Timestamp timestamp;
+    Timestamp time;
+    User author;
+    Boolean deleted;
+    Boolean hidden;
 }

@@ -22,9 +22,10 @@ public enum FacilityController implements Controller {
 							APIGatewayProxyResponseEvent response,
 							Context context) {
 		Map<String, String> params = event.getQueryStringParameters();
-		String id = params.get("id");
+		String id = null;
+		if (params != null) id = params.get("id");
 		if (id != null) {
-			response.setBody(new Gson().toJson(dao.findOne(Integer.valueOf(id))));
+			response.setBody(new Gson().toJson(dao.findOne(Integer.parseInt(id))));
 		} else {
 			response.setBody(new Gson().toJson(dao.findAll()));
 		}
