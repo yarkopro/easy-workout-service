@@ -23,10 +23,10 @@ public enum DefaultTicksDao implements TicksDao {
 
             while (rs.next()) {
                 Tick tick = Tick.of(
-                        rs.getInt("id"),
-                        rs.getInt("entity_id"),
-                        rs.getString("latitude"),
-                        rs.getString("longitude"), TickType.FACILITY);
+                    rs.getInt("entity_id"),
+                    rs.getString("latitude"),
+                    rs.getString("longitude"),
+                    rs.getInt("tick_type"));
 
                 ticks.add(tick);
             }

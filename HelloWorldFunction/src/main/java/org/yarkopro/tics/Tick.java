@@ -10,9 +10,8 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "of")
 public class Tick {
 
-    Integer id;
     Integer entityId;
     String latitude;
     String longitude;
-    TickType type;
+    Integer type;
 }

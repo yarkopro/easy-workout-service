@@ -20,7 +20,7 @@ public enum DefaultFacilityDao implements FacilityDao {
 
         try (Connection conn = Database.connection();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT * FROM facility")) {
+                     "SELECT * FROM facilities")) {
 
             ResultSet rs = ps.executeQuery();
 
