@@ -72,9 +72,13 @@ public enum DefaultFacilityDao implements FacilityDao {
 
             while (rs.next()) {
                 FacilityActivity activity = new FacilityActivity(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getInt("facility_id")
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("decription"),
+                    rs.getTimestamp("time"),
+                    null,
+                    rs.getBoolean("deleted"),
+                    rs.getBoolean("hidden")
                 );
 
                 facilityActivities.add(activity);
